@@ -26,7 +26,8 @@ config :repr, ReprWeb.Endpoint,
   secret_key_base: "me+aP41+I7j14sdjUK1s+ySLDNd4qD/E7FE1wP4HDQklaV4L0mxNtdFXi4y7kLmo",
   watchers: [
     # Start the esbuild watcher by calling Esbuild.install_and_run(:default, args)
-    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]}
+    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
+    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
   ]
 
 # ## SSL Support
