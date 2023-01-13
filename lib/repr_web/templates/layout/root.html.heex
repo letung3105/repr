@@ -19,6 +19,7 @@
               <li><%= link "LiveDashboard", to: Routes.live_dashboard_path(@conn, :home) %></li>
             <% end %>
           </ul>
+          <%= render "_voter_menu.html", assigns %>
         </nav>
       </section>
     </header>

@@ -1,6 +1,8 @@
 defmodule ReprWeb.Router do
   use ReprWeb, :router
 
+  import ReprWeb.VoterAuth
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -8,6 +10,7 @@ defmodule ReprWeb.Router do
     plug :put_root_layout, {ReprWeb.LayoutView, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :fetch_current_voter
   end
 
   pipeline :api do
@@ -52,5 +55,38 @@ defmodule ReprWeb.Router do
 
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
+  end
+
+  ## Authentication routes
+
+  scope "/", ReprWeb do
+    pipe_through [:browser, :redirect_if_voter_is_authenticated]
+
+    get "/voters/register", VoterRegistrationController, :new
+    post "/voters/register", VoterRegistrationController, :create
+    get "/voters/log_in", VoterSessionController, :new
+    post "/voters/log_in", VoterSessionController, :create
+    get "/voters/reset_password", VoterResetPasswordController, :new
+    post "/voters/reset_password", VoterResetPasswordController, :create
+    get "/voters/reset_password/:token", VoterResetPasswordController, :edit
+    put "/voters/reset_password/:token", VoterResetPasswordController, :update
+  end
+
+  scope "/", ReprWeb do
+    pipe_through [:browser, :require_authenticated_voter]
+
+    get "/voters/settings", VoterSettingsController, :edit
+    put "/voters/settings", VoterSettingsController, :update
+    get "/voters/settings/confirm_email/:token", VoterSettingsController, :confirm_email
+  end
+
+  scope "/", ReprWeb do
+    pipe_through [:browser]
+
+    delete "/voters/log_out", VoterSessionController, :delete
+    get "/voters/confirm", VoterConfirmationController, :new
+    post "/voters/confirm", VoterConfirmationController, :create
+    get "/voters/confirm/:token", VoterConfirmationController, :edit
+    post "/voters/confirm/:token", VoterConfirmationController, :update
   end
 end

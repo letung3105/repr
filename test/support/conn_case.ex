@@ -35,4 +35,30 @@ defmodule ReprWeb.ConnCase do
     Repr.DataCase.setup_sandbox(tags)
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
+
+  @doc """
+  Setup helper that registers and logs in voters.
+
+      setup :register_and_log_in_voter
+
+  It stores an updated connection and a registered voter in the
+  test context.
+  """
+  def register_and_log_in_voter(%{conn: conn}) do
+    voter = Repr.AccountsFixtures.voter_fixture()
+    %{conn: log_in_voter(conn, voter), voter: voter}
+  end
+
+  @doc """
+  Logs the given `voter` into the `conn`.
+
+  It returns an updated `conn`.
+  """
+  def log_in_voter(conn, voter) do
+    token = Repr.Accounts.generate_voter_session_token(voter)
+
+    conn
+    |> Phoenix.ConnTest.init_test_session(%{})
+    |> Plug.Conn.put_session(:voter_token, token)
+  end
 end
